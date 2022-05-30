@@ -1,60 +1,62 @@
 """Stream type classes for tap-perceval."""
 
-from pathlib import Path
-from typing import Any, Dict, Optional, Union, List, Iterable
-
 from singer_sdk import typing as th  # JSON Schema typing helpers
-
 from tap_perceval.client import PercevalStream
 
-# TODO: Delete this is if not using json files for schema definition
-SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-# TODO: - Override `UsersStream` and `GroupsStream` with your own stream definition.
-#       - Copy-paste as many times as needed to create multiple stream types.
 
-
-class UsersStream(PercevalStream):
-    """Define custom stream."""
-    name = "users"
-    primary_keys = ["id"]
+class AgeCatMonthStream(PercevalStream):
+    name = "age_categories_month"
+    primary_keys = ["month", "age_cat"]
+    metric_name = "count"
     replication_key = None
-    # Optionally, you may also use `schema_filepath` in place of `schema`:
-    # schema_filepath = SCHEMAS_DIR / "users.json"
+
     schema = th.PropertiesList(
-        th.Property("name", th.StringType),
+        th.Property("month", th.StringType),
         th.Property(
-            "id",
+            "age_cat",
             th.StringType,
-            description="The user's system ID"
+            description="The age category of the person reporting a fraud to Perceval",
         ),
         th.Property(
-            "age",
+            "count",
             th.IntegerType,
-            description="The user's age in years"
+            description="The total number of reports sent to Perceval, in this category, over the month",
         ),
-        th.Property(
-            "email",
-            th.StringType,
-            description="The user's email address"
-        ),
-        th.Property("street", th.StringType),
-        th.Property("city", th.StringType),
-        th.Property(
-            "state",
-            th.StringType,
-            description="State name in ISO 3166-2 format"
-        ),
-        th.Property("zip", th.StringType),
     ).to_dict()
 
 
-class GroupsStream(PercevalStream):
-    """Define custom stream."""
-    name = "groups"
-    primary_keys = ["id"]
-    replication_key = "modified"
+class DailyAmountStream(PercevalStream):
+    name = "amount_of_money_day"
+    primary_keys = ["day"]
+    metric_name = "amount"
+    replication_key = None
+
     schema = th.PropertiesList(
-        th.Property("name", th.StringType),
-        th.Property("id", th.StringType),
-        th.Property("modified", th.DateTimeType),
+        th.Property("day", th.StringType),
+        th.Property("amount", th.NumberType),
+    ).to_dict()
+
+
+class DptReportMonthStream(PercevalStream):
+    name = "dpt_report_month"
+    primary_keys = ["month", "dpt_code"]
+    metric_name = "count"
+    replication_key = None
+
+    schema = th.PropertiesList(
+        th.Property("month", th.StringType),
+        th.Property("dpt_code", th.StringType),
+        th.Property("count", th.IntegerType),
+    ).to_dict()
+
+
+class DailyCountStream(PercevalStream):
+    name = "nb_report_day"
+    primary_keys = ["day"]
+    metric_name = "count"
+    replication_key = None
+
+    schema = th.PropertiesList(
+        th.Property("day", th.StringType),
+        th.Property("count", th.IntegerType),
     ).to_dict()
